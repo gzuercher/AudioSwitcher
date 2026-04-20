@@ -1,9 +1,7 @@
 # Lessons Learned
 
-Dieses Dokument wird automatisch gepflegt. Wenn Claude einen Fehler macht und korrigiert wird, wird die Lektion hier dokumentiert.
+Format: `- [YYYY-MM-DD]: [Issue] -> [Correct approach]`
 
-Format: `- [YYYY-MM-DD]: [Was falsch war] → [Korrekte Vorgehensweise]`
+## Lessons
 
-## Lektionen
-
-<!-- Neue Einträge oben anfügen -->
+<!-- Append new entries at the top -->

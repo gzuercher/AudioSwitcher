@@ -1,46 +1,32 @@
-# Contributing – Claude Code bei Raptus
+# Contributing
 
-## Erste Schritte
+## Build
 
-1. Repo klonen oder Template verwenden
-2. `claude` im Projektverzeichnis starten
-3. `/help` zeigt verfügbare Commands
+```bash
+swiftc -o AudioSwitcher AudioSwitcher.swift -framework Cocoa -framework Carbon
+```
 
-## Verfügbare Commands
+## Project structure
 
-- `/commit-push-pr` — Git-Workflow automatisieren
-- `/review` — Code Review des aktuellen Branches
-- `/build-and-test` — Build und Tests laufen lassen
+```
+AudioSwitcher/
+  AudioSwitcher.swift   # Complete source (single file)
+  CLAUDE.md             # Claude Code project guide
+  README.md             # User documentation
+  LICENSE               # MIT
+```
 
-## Wenn Claude einen Fehler macht
+## Guidelines
 
-1. **Sofort korrigieren.** Nicht durchlaufen lassen.
-2. **Lektion dokumentieren:** Sage Claude: "Dokumentiere diese Lektion in lessons.md"
-3. **Im PR vermerken:** Wenn es ein wiederkehrendes Problem ist, CLAUDE.md oder eine Rule anpassen
+- Keep everything in a single Swift file — no Xcode project, no Swift Package Manager
+- Code and comments in English
+- Commit messages in German, imperative ("Füge Feature hinzu")
+- No hardcoded device names — all configuration via `~/.config/audioswitcher/config.json`
+- Test with `--list-devices`, `--init`, `--config` after changes
 
-## Code Review mit Claude
+## Testing
 
-Bei Pull Reviews kannst du `@.claude` taggen (braucht die Claude Code GitHub Action). Claude kann dann:
-- Fehler in der CLAUDE.md ergänzen
-- Lektionen in lessons.md eintragen
-- Direkt Verbesserungen vorschlagen
-
-## Rules erweitern
-
-Wenn du eine neue Regel brauchst:
-1. Erstelle eine `.md`-Datei in `.claude/rules/`
-2. Setze `globs` im Frontmatter auf die relevanten Dateitypen
-3. Halte die Regel kurz und konkret
-4. Erstelle einen PR
-
-## Persönliche Einstellungen
-
-Für persönliche Anpassungen: `.claude/settings.local.json` (git-ignored).
-Diese Datei überschreibt Team-Einstellungen lokal.
-
-## Wichtig
-
-- **CLAUDE.md schlank halten.** Nur was jede Session braucht.
-- **Rules für Spezifisches.** Sicherheit, Qualität, A11y sind ausgelagert.
-- **Hooks für Determinismus.** Was immer passieren muss (Formatting), gehört in Hooks.
-- **lessons.md pflegen.** Jeder Fehler, der dokumentiert wird, spart dem Team Zeit.
+1. Build the binary
+2. Run `./AudioSwitcher --list-devices` to verify SwitchAudioSource detection
+3. Run `./AudioSwitcher --init` and verify config is created
+4. Run `./AudioSwitcher` and verify menu bar icon, toggle, and hotkey

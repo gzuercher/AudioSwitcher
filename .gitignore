@@ -1,25 +1,9 @@
-# Umgebungsvariablen
-.env
-.env.*
-!.env.example
-
-# Persönliche Claude Code Einstellungen
-.claude/settings.local.json
-
-# Node
-node_modules/
-.next/
-dist/
-.turbo/
-
-# PHP
-vendor/
-storage/logs/
-bootstrap/cache/
+# Compiled binary
+AudioSwitcher
+!AudioSwitcher.swift
 
 # OS
 .DS_Store
-Thumbs.db
 
 # IDE
 .vscode/

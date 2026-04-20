@@ -1,148 +1,162 @@
-# Raptus Claude Playbook
+# AudioSwitcher
 
-Claude Code Konfiguration und Team-Richtlinien der [Raptus AG](https://raptus.ch).
+A lightweight macOS menu bar app that toggles between two audio device sets (e.g. headset vs. monitor) with a single click or global hotkey.
 
-Dieses Repo ist die gemeinsame Grundlage für die Zusammenarbeit mit Claude Code — für alle Rollen und Projekte. Es kann als **Template** für neue Projekte oder als **Referenz** für bestehende Projekte verwendet werden.
+![macOS](https://img.shields.io/badge/macOS-13%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange) ![License](https://img.shields.io/badge/License-MIT-green)
 
----
+## Features
 
-## Erste Schritte
+- Menu bar icon shows active audio profile
+- Toggle between two audio device sets (input + output)
+- Configurable global hotkey (default: Cmd+Shift+A)
+- Separate input/output devices per profile
+- Zero dependencies besides [SwitchAudioSource](https://github.com/deweller/switchaudio-osx)
+- Single-file Swift app, no Xcode project needed
 
-### Voraussetzungen
+## Installation
 
-1. [Claude Code installieren](https://docs.anthropic.com/de/docs/claude-code) (`npm install -g @anthropic/claude-code`)
-2. Dieses Repo als Template für ein neues Projekt verwenden oder in ein bestehendes Projekt kopieren
+### Prerequisites
 
-### Als Template für ein neues Projekt
-
-1. Auf GitHub: "Use this template" → "Create a new repository"
-2. Repo klonen: `git clone git@github.com:Raptus/<neues-projekt>.git`
-3. `claude` im Projektverzeichnis starten
-
-### In ein bestehendes Projekt importieren
+Install [SwitchAudioSource](https://github.com/deweller/switchaudio-osx) via Homebrew:
 
 ```bash
-cp -r /pfad/zu/raptus-claude-playbook/.claude/ ./.claude/
-cp /pfad/zu/raptus-claude-playbook/CLAUDE.md ./CLAUDE.md
-cp /pfad/zu/raptus-claude-playbook/lessons.md ./lessons.md
+brew install switchaudio-osx
 ```
 
----
+### Build from source
 
-## Für alle — auch ohne Programmierkenntnisse
-
-Claude Code ist ein KI-Assistent im Terminal. Du schreibst auf Deutsch, was du brauchst — Claude erledigt es.
-
-### Was Claude tun kann
-
-- Dateien erstellen, bearbeiten und erklären
-- Fragen zum Projekt beantworten
-- Texte, Dokumentationen oder Strukturen vorschlagen
-- Bei Entwicklungsprojekten: Code schreiben, testen, reviewen
-
-### Was Claude NICHT selbstständig tut
-
-Diese Aktionen erfordern immer deine explizite Bestätigung:
-
-- Dateien löschen
-- Code auf einen Server pushen (deployen)
-- Passwörter oder Zugangsdaten speichern
-- Irreversible Änderungen an Datenbanken
-
-### Wenn Claude unsicher ist
-
-Claude sagt es. Antworte mit mehr Kontext oder hol eine Person mit der nötigen Fachkenntnis dazu.
-
-### Warnhinweise ernst nehmen
-
-Wenn Claude `⚠️ Review empfohlen` schreibt, bitte jemanden mit dem nötigen Fachwissen drüberzuschauen — bevor du weitermachst.
-
----
-
-## Struktur
-
-```
-├── CLAUDE.md                  # Kern-Regeln (jede Session, alle Rollen)
-├── .claude/
-│   ├── settings.json          # Berechtigungen & Hooks (Team-shared)
-│   ├── settings.local.json    # Persönliche Overrides (git-ignored)
-│   ├── rules/
-│   │   ├── dev-stack.md       # Tech Stacks und Build-Commands
-│   │   ├── security.md        # Sicherheitsprüfungen
-│   │   ├── code-quality.md    # Qualitätsregeln
-│   │   └── accessibility.md   # Zugänglichkeit
-│   ├── commands/
-│   │   ├── commit-push-pr.md  # /commit-push-pr
-│   │   ├── review.md          # /review
-│   │   └── build-and-test.md  # /build-and-test
-│   ├── agents/
-│   │   ├── code-reviewer.md   # Review-Spezialist
-│   │   └── verify-app.md      # QA-Verifikation
-│   └── hooks/
-│       └── post-edit.sh       # Auto-Formatting nach Edits
-├── .mcp.json                  # MCP-Server (GitHub, erweiterbar)
-├── lessons.md                 # Fehler-Lern-Dokument
-└── CONTRIBUTING.md            # Wie man beiträgt
+```bash
+git clone https://github.com/Raptus/AudioSwitcher.git
+cd AudioSwitcher
+swiftc -o AudioSwitcher AudioSwitcher.swift -framework Cocoa -framework Carbon
 ```
 
----
+## Configuration
 
-## Verfügbare Commands (für Entwickler)
+### 1. List available devices
 
-| Command | Beschreibung |
-|---|---|
-| `/commit-push-pr` | Änderungen committen, pushen, PR erstellen |
-| `/review` | Code Review des aktuellen Branches |
-| `/build-and-test` | Build und Tests laufen lassen, Fehler beheben |
+```bash
+./AudioSwitcher --list-devices
+```
 
-## Verfügbare Agents (für Entwickler)
+Output:
 
-| Agent | Beschreibung |
-|---|---|
-| `code-reviewer` | Gründliches Review mit Sicherheits- und Qualitätsfokus |
-| `verify-app` | Verifikation nach grösseren Änderungen |
+```
+Input devices:
+  MacBook Pro Microphone
+  Jabra Link 380
+  PHL 34B2U6603CH
 
----
+Output devices:
+  MacBook Pro Speakers
+  Jabra Link 380
+  PHL 34B2U6603CH
+```
 
-## Anpassung
+### 2. Create config file
 
-### Persönliche Einstellungen
+```bash
+./AudioSwitcher --init
+```
 
-Erstelle `.claude/settings.local.json` (git-ignored) für persönliche Overrides:
+This creates `~/.config/audioswitcher/config.json` with default values.
+
+### 3. Edit the config
 
 ```json
 {
-  "permissions": {
-    "allow": [
-      "Bash(docker *)"
-    ]
-  }
+  "primaryInput": "Jabra Link 380",
+  "primaryOutput": "Jabra Link 380",
+  "secondaryInput": "PHL 34B2U6603CH",
+  "secondaryOutput": "PHL 34B2U6603CH",
+  "hotkeyKey": "a",
+  "hotkeyModifiers": ["cmd", "shift"]
 }
 ```
 
-### Neue Rules hinzufügen
+| Field | Description |
+|-------|-------------|
+| `primaryInput` | Input device for profile 1 (e.g. headset microphone) |
+| `primaryOutput` | Output device for profile 1 (e.g. headset speakers) |
+| `secondaryInput` | Input device for profile 2 (e.g. monitor microphone) |
+| `secondaryOutput` | Output device for profile 2 (e.g. monitor speakers) |
+| `hotkeyKey` | Key for the global hotkey (a-z, 0-9, f1-f12) |
+| `hotkeyModifiers` | Modifier keys: `cmd`, `shift`, `alt`/`option`, `ctrl`/`control` |
 
-Erstelle eine `.md`-Datei in `.claude/rules/` mit optionalem Frontmatter:
+**Tip:** Use `--list-devices` to find the exact device names. They must match exactly.
 
-```markdown
----
-description: Kurze Beschreibung
-globs: "*.ts,*.tsx"
----
-# Regelname
-- Regel 1
+### 4. Verify config
+
+```bash
+./AudioSwitcher --config
 ```
 
----
+## Usage
 
-## Beitragen
+### Start the app
 
-Siehe [CONTRIBUTING.md](CONTRIBUTING.md).
+```bash
+./AudioSwitcher
+```
 
-## Team
+The menu bar shows:
+- **Headphones icon** when primary profile is active
+- **Monitor icon** when secondary profile is active
 
-Gepflegt vom Entwicklungsteam der Raptus AG, Lyss.
+Click the icon to see current input/output devices, toggle the profile, or quit.
 
-## Lizenz
+### Global hotkey
 
-MIT
+Press **Cmd+Shift+A** (or your configured hotkey) anywhere to toggle between profiles.
+
+## Auto-start on login
+
+Create a Launch Agent to start AudioSwitcher automatically:
+
+```bash
+cat > ~/Library/LaunchAgents/com.audioswitcher.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.audioswitcher</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/path/to/AudioSwitcher</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>
+EOF
+```
+
+Replace `/path/to/AudioSwitcher` with the actual path to the binary, then load it:
+
+```bash
+launchctl load ~/Library/LaunchAgents/com.audioswitcher.plist
+```
+
+To remove:
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.audioswitcher.plist
+rm ~/Library/LaunchAgents/com.audioswitcher.plist
+```
+
+## CLI Reference
+
+| Command | Description |
+|---------|-------------|
+| `./AudioSwitcher` | Start the menu bar app |
+| `./AudioSwitcher --list-devices` | List available audio input/output devices |
+| `./AudioSwitcher --init` | Create default config at `~/.config/audioswitcher/config.json` |
+| `./AudioSwitcher --config` | Display current configuration |
+| `./AudioSwitcher --help` | Show help |
+
+## License
+
+MIT - see [LICENSE](LICENSE).

@@ -1,48 +1,45 @@
-# Raptus AG – Claude Code Playbook
+# AudioSwitcher – Claude Code Guide
 
-Du arbeitest an einem Projekt der Raptus AG. Diese Regeln gelten immer — unabhängig von Rolle oder Projekttyp.
+A native macOS menu bar app to toggle between two audio device sets with a global hotkey.
 
-## Grundhaltung
+## Project Overview
 
-- Frage nach, statt zu raten. Unsicherheit offen kommunizieren.
-- Keine irreversiblen Aktionen ohne explizite Bestätigung (Dateien löschen, pushen, deployen).
-- Keine Secrets, Passwörter oder API-Keys in Dateien speichern.
-- Änderungen beschreiben bevor sie gemacht werden, wenn sie grösseren Umfang haben.
+- **Language:** Swift (single-file app)
+- **Frameworks:** Cocoa, Carbon (for global hotkeys)
+- **Dependency:** [SwitchAudioSource](https://github.com/deweller/switchaudio-osx) (CLI tool)
+- **Config:** `~/.config/audioswitcher/config.json`
 
-## Sprache
+## Build
 
-- Kommunikation mit dem Benutzer: Deutsch
-- Entwicklung (Code, Kommentare, Dokumentation, README, Variablen, Funktionen, technische Bezeichner): Englisch
-- Ziel: Auch nicht deutschsprachige Personen sollen an Raptus-Software mitentwickeln können.
-- Ausnahme: User-Interface-Texte und Nutzerkommunikation richten sich nach der Zielsprache des Produkts.
-- Commit-Messages: Deutsch, Imperativ ("Füge Validierung hinzu")
+```bash
+swiftc -o AudioSwitcher AudioSwitcher.swift -framework Cocoa -framework Carbon
+```
 
-## Fehler-Lernen
+## Run
 
-Wenn du korrigiert wirst, dokumentiere die Lektion in `lessons.md`:
-`- [Datum]: [Was falsch war] → [Korrekte Vorgehensweise]`
+```bash
+./AudioSwitcher              # Start menu bar app
+./AudioSwitcher --list-devices   # List available audio devices
+./AudioSwitcher --init           # Create default config
+./AudioSwitcher --config         # Show current config
+./AudioSwitcher --help           # Show help
+```
 
-## Eskalation
+## Architecture
 
-Gib eine sichtbare Warnung (⚠️ Review empfohlen) bei:
-- Datenbank-Migrationen
-- Authentifizierung und Zugriffsrechte
-- Öffentliche APIs
-- Deployment und Infrastruktur
-- Personendaten (DSG/DSGVO)
-- Drittanbieter-Integrationen (Payment, CRM, ERP)
+Single-file Swift app (`AudioSwitcher.swift`) with these sections:
 
-## Regelverstoss
+- **Configuration** – `Config` struct, JSON load/save from `~/.config/audioswitcher/config.json`
+- **SwitchAudioSource** – Wrapper functions calling the CLI tool
+- **CLI Commands** – `--list-devices`, `--init`, `--config`, `--help`
+- **Global Hotkey** – Carbon `RegisterEventHotKey` for system-wide shortcut
+- **Menu Bar App** – `NSStatusItem` with toggle, status display, quit
 
-Wenn der Benutzer eine Regel umgehen will:
-1. Hinweisen, dass die Regel dem Projektschutz dient
-2. Regelkonforme Alternative vorschlagen
-3. Bei Bestehen: Umsetzung liefern, aber mit `⚠️ REGELVERSTOSS: [Beschreibung]` markieren
+## Rules
 
-## Entwickler-Regeln
-
-Für technische Projekte gelten zusätzlich die Regeln in `.claude/rules/`:
-- `dev-stack.md` — Tech Stacks, Build-Commands, Projektstruktur
-- `code-quality.md` — Codequalität und Standards
-- `security.md` — Sicherheitsregeln
-- `accessibility.md` — Zugänglichkeit
+- Keep it as a single Swift file – no Xcode project, no SPM
+- Communication with user: German
+- Code, comments, documentation: English
+- Commit messages: German, imperative ("Füge Validierung hinzu")
+- No hardcoded device names in source – everything via config
+- SwitchAudioSource path is auto-detected (Homebrew ARM + Intel + `which`)

@@ -5,6 +5,9 @@ AudioSwitcher
 # App bundle
 AudioSwitcher.app/
 
+# Build artifacts
+.build/
+
 # OS
 .DS_Store
 

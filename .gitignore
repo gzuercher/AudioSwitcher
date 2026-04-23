@@ -2,6 +2,9 @@
 AudioSwitcher
 !AudioSwitcher.swift
 
+# App bundle
+AudioSwitcher.app/
+
 # OS
 .DS_Store
 
